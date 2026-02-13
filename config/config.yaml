@@ -1,0 +1,54 @@
+# Configurazione Video Stabilization System
+
+# Parametri Motion Estimation
+motion_estimation:
+  block_size: 32              # Dimensione blocchi per block matching (pixel)
+  search_range: 12            # Raggio area di ricerca (pixel)
+  metric: "sad"               # Metrica di similarità: 'sad' o 'mad'
+
+# Parametri Global Motion Estimation
+global_motion:
+  motion_model: "translation" # Modello di movimento: 'translation', 'affine', 'homography'
+  outlier_threshold: 2.0      # Soglia per rimozione outlier (deviazioni standard)
+  aggregation_method: "median" # Metodo aggregazione: 'median', 'mean', 'weighted_mean'
+  estimate_rotation: true     # Abilita stima e compensazione rotazioni (roll/pan/tilt)
+  estimation_method: "optical_flow" # Metodo GMV: 'block_matching' o 'optical_flow'
+  optical_flow:
+    max_corners: 1200
+    quality_level: 0.003
+    min_distance: 8
+    block_size: 7
+    win_size: 21
+    max_level: 3
+    ransac_reproj_threshold: 8.0
+
+# Parametri Trajectory Smoothing
+trajectory_smoothing:
+  smoothing_window: 15        # Finestra temporale per smoothing (frame)
+  filter_type: "gaussian" # Tipo filtro: 'moving_average', 'gaussian', 'exponential'
+  gaussian_sigma: 2.0         # Sigma per filtro gaussiano (se usato)
+  exponential_alpha: 0.9      # Alpha per filtro esponenziale (se usato)
+  deadband_px: 0.0            # Soglia (px) sotto la quale l'offset viene azzerato
+
+# Parametri Motion Compensation
+motion_compensation:
+  crop_ratio: 0.9             # Rapporto di crop per evitare bordi (0-1)
+  border_mode: "constant"     # Gestione bordi: 'replicate', 'reflect', 'constant'
+  interpolation: "linear"     # Interpolazione: 'linear', 'cubic', 'nearest'
+
+# Parametri Video I/O
+video:
+  input_format: "*.mp4"       # Formato video di input
+  output_codec: "H.264"        # Codec output: 'mp4v', 'x264', 'xvid'
+  preserve_fps: true          # Mantieni fps originale
+  preserve_resolution: true   # Mantieni risoluzione originale
+
+# Opzioni Debug e Visualizzazione
+debug:
+  show_progress: true         # Mostra progresso durante elaborazione
+  save_motion_vectors: false  # Salva motion vectors per analisi
+  save_trajectory: false      # Salva traiettoria originale e smussata
+  verbose: true               # Output dettagliato
+
+# Salvataggio Metriche per Confronto
+save_metrics: true            # Salva metriche dettagliate in JSON (per confronti)

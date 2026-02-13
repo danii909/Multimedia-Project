@@ -1,0 +1,76 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Cartelle da ignorare
+notebooks/
+relazione/
+tests/
+
+# File da ignorare
+setup.py
+start_app.bat
+START_APP.md
+start_app.sh
+test_modules.py
+CONFRONTO_GUIDE.md
+LICENSE
+
+# Data: ignora tutto il contenuto di input/ e output/ ma mantieni le cartelle
+data/input/*
+data/output/*
+!data/input/.gitkeep
+!data/output/.gitkeep
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+
+# OS generated
+Thumbs.db
+.Spotlight-V100
+.Trashes
