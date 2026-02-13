@@ -739,7 +739,7 @@ def main():
         
         Progetto Multimedia - Video Stabilization
         
-        [GitHub Repository](https://github.com/yourusername/video-stabilization)
+        [GitHub Repository](https://github.com/danii909/Multimedia-Project)
         """)
         
         st.markdown("---")
