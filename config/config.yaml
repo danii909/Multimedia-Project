@@ -24,7 +24,7 @@ global_motion:
 
 # Parametri Trajectory Smoothing
 trajectory_smoothing:
-  smoothing_window: 15        # Finestra temporale per smoothing (frame)
+  smoothing_window: 45        # Finestra temporale per smoothing (frame)
   filter_type: "gaussian" # Tipo filtro: 'moving_average', 'gaussian', 'exponential'
   gaussian_sigma: 2.0         # Sigma per filtro gaussiano (se usato)
   exponential_alpha: 0.9      # Alpha per filtro esponenziale (se usato)
