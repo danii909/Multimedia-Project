@@ -30,7 +30,9 @@ class TrajectoryFilter:
             exponential_alpha: Alpha per filtro esponenziale (opzionale, 0<alpha<1)
             deadband_px: Soglia (px) sotto la quale l'offset viene azzerato
         """
+        self._requested_smoothing_window = smoothing_window
         self.smoothing_window = smoothing_window
+        self.smoothing_window_clamped = False  # True se clampata per questo video
         self.filter_type = filter_type
         self.gaussian_sigma = gaussian_sigma
         self.exponential_alpha = exponential_alpha
@@ -52,10 +54,43 @@ class TrajectoryFilter:
         self.trajectory_y.clear()
         self.trajectory_angle.clear()
         self._smoothed_cache = None
+        # Ripristina la window originale richiesta (rimuove eventuali clamp precedenti)
+        self.smoothing_window = self._requested_smoothing_window
+        self.smoothing_window_clamped = False
         # Reinizializza con (0,0,0) per frame 0
         self.trajectory_x.append(0.0)
         self.trajectory_y.append(0.0)
         self.trajectory_angle.append(0.0)
+
+    def configure_for_video(self, total_frames: int, fps: float = 30.0) -> None:
+        """
+        Adatta la smoothing_window al video specifico.
+        Clamp automatico se la window supera i frame disponibili.
+
+        Args:
+            total_frames: Numero totale di frame del video
+            fps: Frame rate del video (usato solo per il messaggio di log)
+        """
+        import logging
+        _logger = logging.getLogger(__name__)
+
+        if total_frames < 2:
+            return
+
+        # Clamp: la window non può superare il numero di frame del video
+        max_window = total_frames - 1
+        if self._requested_smoothing_window > max_window:
+            self.smoothing_window = max_window
+            self.smoothing_window_clamped = True
+            duration_s = total_frames / fps if fps > 0 else 0.0
+            _logger.warning(
+                f"smoothing_window ridotta da {self._requested_smoothing_window} "
+                f"a {self.smoothing_window} frame "
+                f"(video di {total_frames} frame / {duration_s:.1f}s @ {fps:.0f}fps)"
+            )
+        else:
+            self.smoothing_window = self._requested_smoothing_window
+            self.smoothing_window_clamped = False
         
     def add_motion(self, dx: float, dy: float, dangle: float = 0.0):
         """
@@ -82,15 +117,18 @@ class TrajectoryFilter:
         if self._smoothed_cache is not None:
             return self._smoothed_cache
 
-        if len(self.trajectory_x) < self.smoothing_window:
-            # Se non ci sono abbastanza frame, restituisce la traiettoria originale
+        if len(self.trajectory_x) < 2:
+            # Non abbastanza frame per alcuna elaborazione: restituisce la traiettoria originale
             self._smoothed_cache = np.column_stack([
                 np.array(self.trajectory_x),
                 np.array(self.trajectory_y),
                 np.array(self.trajectory_angle)
             ])
             return self._smoothed_cache
-        
+        # Nota: se n_frames < smoothing_window, si applica ugualmente lo smoothing
+        # usando la finestra limitata dai dati disponibili (gestito dai filtri stessi).
+        # Il vecchio early-return causava jitter_reduction=0 su video corti.
+
         if self.filter_type == 'moving_average':
             self._smoothed_cache = self._moving_average_filter()
         elif self.filter_type == 'gaussian':

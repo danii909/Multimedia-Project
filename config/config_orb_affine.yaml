@@ -1,0 +1,59 @@
+# Configurazione Video Stabilization System - ORB + RANSAC Affine (6 parametri)
+
+# Parametri Motion Estimation (non usati con optical_flow, ma necessari per compatibilità)
+motion_estimation:
+  block_size: 16
+  search_range: 16
+  metric: "sad"
+
+# Parametri Global Motion Estimation
+global_motion:
+  motion_model: "translation"
+  outlier_threshold: 2.0
+  aggregation_method: "median"
+  estimate_rotation: true
+  estimation_method: "optical_flow"
+  optical_flow:
+    feature_type: "orb"         # ORB features
+    transform_type: "affine"    # Affine completa (6 param) - gestisce zoom e scala non uniforme
+    
+    # Parametri ORB
+    orb_n_features: 600         # Più features per affine completa
+    orb_scale_factor: 1.2
+    orb_n_levels: 8
+    orb_edge_threshold: 31
+    orb_ratio_threshold: 0.75
+    
+    # RANSAC
+    ransac_reproj_threshold: 4.0 # Soglia leggermente più alta per affine completa
+
+# Parametri Trajectory Smoothing
+trajectory_smoothing:
+  smoothing_window: 30
+  filter_type: "moving_average"
+  gaussian_sigma: 2.0
+  exponential_alpha: 0.9
+  deadband_px: 0.0
+
+# Parametri Motion Compensation
+motion_compensation:
+  crop_ratio: 0.9
+  border_mode: "constant"
+  interpolation: "linear"
+
+# Parametri Video I/O
+video:
+  input_format: "*.mp4"
+  output_codec: "H.264"
+  preserve_fps: true
+  preserve_resolution: true
+
+# Opzioni Debug e Visualizzazione
+debug:
+  show_progress: true
+  save_motion_vectors: false
+  save_trajectory: false
+  verbose: true
+
+# Salvataggio Metriche per Confronto
+save_metrics: true

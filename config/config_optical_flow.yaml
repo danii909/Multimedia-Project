@@ -1,4 +1,4 @@
-# Configurazione Video Stabilization System - OPTICAL FLOW
+# Configurazione Video Stabilization System - OPTICAL FLOW (Shi-Tomasi + Lucas-Kanade)
 
 # Parametri Global Motion Estimation
 global_motion:
@@ -8,17 +8,30 @@ global_motion:
   estimate_rotation: true     # Abilita stima e compensazione rotazioni (roll/pan/tilt)
   estimation_method: "optical_flow" # OPTICAL FLOW
   optical_flow:
-    max_corners: 1200          # Numero massimo di feature points da tracciare
-    quality_level: 0.003       # Soglia qualità per rilevazione angoli
-    min_distance: 8            # Distanza minima tra feature points (pixel)
+    feature_type: "shi_tomasi"  # Tipo feature: 'shi_tomasi' (LK) o 'orb'
+    transform_type: "partial"   # Transform RANSAC: 'partial' (4 param), 'affine' (6 param), 'homography' (8 param)
+    
+    # Parametri Shi-Tomasi + Lucas-Kanade (quando feature_type='shi_tomasi')
+    max_corners: 1500          # Numero massimo di feature points da tracciare
+    quality_level: 0.002       # Soglia qualità per rilevazione angoli
+    min_distance: 10            # Distanza minima tra feature points (pixel)
     block_size: 7              # Dimensione finestra per rilevazione features
     win_size: 21               # Dimensione finestra per Lucas-Kanade
     max_level: 3               # Livelli piramide per optical flow
-    ransac_reproj_threshold: 8.0 # Soglia RANSAC per filtrare outlier
+    
+    # Parametri ORB (quando feature_type='orb')
+    orb_n_features: 1000        # Numero massimo di features ORB da rilevare
+    orb_scale_factor: 1.2      # Fattore di scala piramidale ORB
+    orb_n_levels: 10            # Numero di livelli della piramide ORB
+    orb_edge_threshold: 31     # Soglia per escludere edge ORB
+    orb_ratio_threshold: 0.75  # Lowe's ratio test threshold per ORB matching
+    
+    # RANSAC (comune per entrambi)
+    ransac_reproj_threshold: 6.0 # Soglia RANSAC per filtrare outlier
 
 # Parametri Trajectory Smoothing
 trajectory_smoothing:
-  smoothing_window: 15        # Finestra temporale per smoothing (frame)
+  smoothing_window: 45        # Finestra temporale per smoothing (frame)
   filter_type: "gaussian"     # Tipo filtro: 'moving_average', 'gaussian', 'exponential'
   gaussian_sigma: 2.0         # Sigma per filtro gaussiano (se usato)
   exponential_alpha: 0.9      # Alpha per filtro esponenziale (se usato)
@@ -26,9 +39,9 @@ trajectory_smoothing:
 
 # Parametri Motion Compensation
 motion_compensation:
-  crop_ratio: 0.9             # Rapporto di crop per evitare bordi (0-1)
-  border_mode: "constant"     # Gestione bordi: 'replicate', 'reflect', 'constant'
-  interpolation: "linear"     # Interpolazione: 'linear', 'cubic', 'nearest'
+  crop_ratio: 0.85             # Rapporto di crop per evitare bordi (0-1)
+  border_mode: "replicate"     # Gestione bordi: 'replicate', 'reflect', 'constant'
+  interpolation: "nearest"     # Interpolazione: 'linear', 'cubic', 'nearest'
 
 # Parametri Video I/O
 video:
