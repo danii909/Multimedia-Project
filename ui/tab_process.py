@@ -36,9 +36,9 @@ def render_method_selection():
     if use_lk_partial:         selected.append("optical_shi_tomasi_partial")
     if use_lk_affine:          selected.append("optical_shi_tomasi_affine")
     if use_lk_homography:      selected.append("optical_shi_tomasi_homography")
-    if use_orb_partial:        selected.append("optical_orb_partial")
-    if use_orb_affine:         selected.append("optical_orb_affine")
-    if use_orb_homography:     selected.append("optical_orb_homography")
+    if use_orb_partial:        selected.append("orb_matching_partial")
+    if use_orb_affine:         selected.append("orb_matching_affine")
+    if use_orb_homography:     selected.append("orb_matching_homography")
 
     return selected
 
@@ -90,7 +90,7 @@ def render_params_section(selected_methods, configs):
             st.slider("RANSAC Threshold", 1.0, 15.0,
                       value=d['ransac_threshold_st'], step=0.5, key="comp_ransac_threshold_st")
 
-    if any(m.startswith("optical_orb") for m in selected_methods):
+    if any(m.startswith("orb_matching") for m in selected_methods):
         with st.expander("🎯 Parametri ORB Matching", expanded=False):
             st.slider("N° Features", 200, 1000,
                       value=d['orb_n_features'], step=50, key="comp_orb_n_features")

@@ -51,7 +51,7 @@ def _render_comparison_metrics(successful_results):
     _GROUPS = [
         ("📦 Block Matching",          lambda k: k.startswith("block")),
         ("🌊 Optical Flow (LK)",        lambda k: k.startswith("optical_shi_tomasi")),
-        ("🎯 ORB Matching",             lambda k: k.startswith("optical_orb")),
+        ("🎯 ORB Matching",             lambda k: k.startswith("orb_matching")),
     ]
 
     for group_label, group_filter in _GROUPS:

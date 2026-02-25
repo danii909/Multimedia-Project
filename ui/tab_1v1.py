@@ -52,7 +52,7 @@ def _method_key(algo, transform):
     elif algo == "optical_flow":
         return f"optical_shi_tomasi_{transform}"
     else:
-        return f"optical_orb_{transform}"
+        return f"orb_matching_{transform}"
 
 
 # ──────────────────────────────────────────────────────────────

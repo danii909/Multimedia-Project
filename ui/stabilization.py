@@ -10,9 +10,9 @@ METHOD_NAMES = {
     "optical_shi_tomasi_partial":    "🌊 Optical Flow (LK) - Partial",
     "optical_shi_tomasi_affine":     "🌊 Optical Flow (LK) - Affine",
     "optical_shi_tomasi_homography": "🌊 Optical Flow (LK) - Homography",
-    "optical_orb_partial":           "🎯 ORB Matching - Partial",
-    "optical_orb_affine":            "🎯 ORB Matching - Affine",
-    "optical_orb_homography":        "🎯 ORB Matching - Homography",
+    "orb_matching_partial":           "🎯 ORB Matching - Partial",
+    "orb_matching_affine":            "🎯 ORB Matching - Affine",
+    "orb_matching_homography":        "🎯 ORB Matching - Homography",
 }
 
 
@@ -73,8 +73,8 @@ def build_method_config(method, params):
             },
         }
 
-    elif method.startswith("optical_orb"):
-        transform_type = method.replace("optical_orb_", "")
+    elif method.startswith("orb_matching"):
+        transform_type = method.replace("orb_matching_", "")
         config['global_motion'] = {
             'estimation_method': 'optical_flow',
             'motion_model':      'affine',
