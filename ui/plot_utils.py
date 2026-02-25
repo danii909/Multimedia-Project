@@ -89,7 +89,7 @@ def create_rms_comparison_chart(successful_results):
         bars = ax.bar(methods, values, color=color, alpha=0.7)
         ax.set_ylabel(label)
         ax.set_title(title)
-        ax.tick_params(axis='x', rotation=45)
+        plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
         ax.grid(True, alpha=0.3, axis='y')
         fmt = '.4f' if 'Angle' in label else '.2f'
         for bar, v in zip(bars, values):
