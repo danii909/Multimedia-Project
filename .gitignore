@@ -46,6 +46,8 @@ htmlcov/
 # Cartelle da ignorare
 notebooks/
 tests/
+old_relazione/
+old/
 
 # File da ignorare
 setup.py
