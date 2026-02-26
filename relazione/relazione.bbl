@@ -1,0 +1,54 @@
+\begin{thebibliography}{8}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Fischler and Bolles(1981)]{fischler1981ransac}
+Martin~A Fischler and Robert~C Bolles.
+\newblock Random sample consensus: a paradigm for model fitting with
+  applications to image analysis and automated cartography.
+\newblock \emph{Communications of the ACM}, 24\penalty0 (6):\penalty0 381--395,
+  1981.
+
+\bibitem[Hartley and Zisserman(2003)]{hartley2003multiple}
+Richard Hartley and Andrew Zisserman.
+\newblock Multiple view geometry in computer vision.
+\newblock 2003.
+
+\bibitem[Lowe(2004)]{lowe2004distinctive}
+David~G Lowe.
+\newblock Distinctive image features from scale-invariant keypoints.
+\newblock \emph{International Journal of Computer Vision}, 60\penalty0
+  (2):\penalty0 91--110, 2004.
+
+\bibitem[Lucas and Kanade(1981)]{lucas1981iterative}
+Bruce~D Lucas and Takeo Kanade.
+\newblock An iterative image registration technique with an application to
+  stereo vision.
+\newblock \emph{Proceedings of the 7th International Joint Conference on
+  Artificial Intelligence}, 2:\penalty0 674--679, 1981.
+
+\bibitem[{OpenCV team}(2024)]{opencv2024}
+{OpenCV team}.
+\newblock \emph{OpenCV: Open Source Computer Vision Library}, 2024.
+\newblock \url{https://opencv.org}.
+
+\bibitem[Rublee et~al.(2011)Rublee, Rabaud, Konolige, and
+  Bradski]{rublee2011orb}
+Ethan Rublee, Vincent Rabaud, Kurt Konolige, and Gary Bradski.
+\newblock Orb: An efficient alternative to sift or surf.
+\newblock pages 2564--2571, 2011.
+
+\bibitem[Shi and Tomasi(1994)]{shi1994good}
+Jianbo Shi and Carlo Tomasi.
+\newblock Good features to track.
+\newblock pages 593--600, 1994.
+
+\bibitem[{Streamlit Inc.}(2024)]{streamlit2024}
+{Streamlit Inc.}
+\newblock \emph{Streamlit -- The fastest way to build data apps}, 2024.
+\newblock \url{https://streamlit.io}.
+
+\end{thebibliography}

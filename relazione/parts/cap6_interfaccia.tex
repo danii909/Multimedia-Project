@@ -1,0 +1,129 @@
+% =================================================
+% CAPITOLO 6 – Interfaccia Utente
+% =================================================
+
+\chapter{Interfaccia Utente}
+
+\section{Struttura Generale dell'Applicazione}
+
+L'applicazione è stata sviluppata utilizzando il framework Streamlit, che consente la creazione di interfacce web interattive direttamente in Python.
+
+La struttura dell'interfaccia è organizzata in:
+
+\begin{itemize}
+    \item una \textbf{sidebar} dedicata al caricamento del video,
+    \item tre \textbf{tab principali} per stabilizzazione, confronto e analisi,
+    \item componenti dinamici per la visualizzazione di risultati e metriche.
+\end{itemize}
+
+L'approccio adottato separa chiaramente la raccolta dei parametri dalla logica di esecuzione, mantenendo il codice dell'interfaccia indipendente dagli algoritmi di stabilizzazione.
+
+\section{Caricamento del Video}
+
+La sidebar consente all'utente di caricare un file video nei formati più comuni (MP4, AVI, MOV, MKV).
+
+Una volta caricato il file:
+
+\begin{enumerate}
+    \item il video viene salvato temporaneamente,
+    \item vengono estratte informazioni quali:
+    \begin{itemize}
+        \item risoluzione,
+        \item numero di frame,
+        \item durata,
+        \item frame rate,
+    \end{itemize}
+    \item i dati vengono memorizzati nello stato della sessione.
+\end{enumerate}
+
+La gestione dello stato evita la ricostruzione del file temporaneo a ogni aggiornamento dell'interfaccia, migliorando l'efficienza.
+
+\section{Stabilizzazione Singola (Confronto 1v1)}
+
+Il primo tab consente di selezionare un singolo algoritmo e confrontarlo direttamente con il video originale.
+
+Il flusso operativo è il seguente:
+
+\begin{enumerate}
+    \item selezione della famiglia di algoritmo,
+    \item scelta del modello di trasformazione,
+    \item configurazione dei parametri,
+    \item avvio dell'elaborazione.
+\end{enumerate}
+
+Al termine della stabilizzazione, l'interfaccia mostra:
+
+\begin{itemize}
+    \item video comparativo sincronizzato,
+    \item metriche quantitative,
+    \item grafici della traiettoria,
+    \item possibilità di download dei risultati.
+\end{itemize}
+
+Questo approccio consente un'analisi qualitativa immediata dell'effetto della stabilizzazione.
+
+\section{Confronto Multi-Metodo}
+
+Il secondo tab permette l'esecuzione simultanea di più algoritmi sulla stessa sequenza video.
+
+L'utente può selezionare più metodi tramite checkbox e configurare parametri comuni e specifici.
+
+Durante l'elaborazione vengono mostrate:
+
+\begin{itemize}
+    \item barra di progresso globale,
+    \item barra di progresso per ciascun algoritmo,
+    \item stato di completamento.
+\end{itemize}
+
+Al termine dell'elaborazione è possibile:
+
+\begin{itemize}
+    \item visualizzare i video stabilizzati affiancati,
+    \item generare una griglia comparativa sincronizzata,
+    \item analizzare metriche aggregate.
+\end{itemize}
+
+Questo modulo rappresenta il cuore comparativo del sistema.
+
+\section{Analisi delle Metriche}
+
+Il terzo tab è dedicato alla visualizzazione quantitativa dei risultati.
+
+Le funzionalità principali includono:
+
+\begin{itemize}
+    \item tabella riassuntiva con RMS e tempo di elaborazione,
+    \item grafici comparativi tra metodi,
+    \item visualizzazione delle traiettorie raw e smoothed,
+    \item esportazione delle metriche in formato JSON.
+\end{itemize}
+
+La rappresentazione grafica facilita l'interpretazione dei risultati e consente di confrontare in modo oggettivo le performance dei diversi approcci.
+
+\section{Visualizzazione Grafica}
+
+Il sistema integra grafici dinamici generati tramite librerie di plotting.
+
+Le principali visualizzazioni includono:
+
+\begin{itemize}
+    \item traiettoria cumulativa originale e filtrata,
+    \item confronto RMS tra metodi,
+    \item confronto percentuale di riduzione del jitter.
+\end{itemize}
+
+Le visualizzazioni sono generate dinamicamente a partire dalle metriche calcolate durante l'elaborazione.
+
+\section{Esperienza Utente}
+
+Particolare attenzione è stata dedicata all'usabilità:
+
+\begin{itemize}
+    \item layout a colonne per confronto visivo immediato,
+    \item barre di progresso informative,
+    \item feedback visivo al completamento,
+    \item possibilità di download diretto dei risultati.
+\end{itemize}
+
+È stato inoltre applicato uno stile grafico personalizzato per migliorare leggibilità e coerenza visiva dell'applicazione.

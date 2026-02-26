@@ -1,0 +1,126 @@
+% =================================================
+% APPENDICI
+% =================================================
+
+\appendix
+
+\chapter{Struttura Completa del Progetto}
+
+\begin{verbatim}
+src/
+    motion_estimation.py     # MotionEstimator (Block Matching SAD/MAD)
+    global_motion.py         # GlobalMotionEstimator (aggregazione, z-score)
+    trajectory_smoothing.py  # TrajectoryFilter (MA, Gaussian, Exponential)
+    motion_compensation.py   # MotionCompensator (warpAffine, crop)
+    video_stabilizer.py      # VideoStabilizer (pipeline a due passate)
+ui/
+    tab_1v1.py               # Tab stabilizzazione singola
+    tab_process.py           # Tab confronto multi-metodo
+    tab_metrics.py           # Tab analisi metriche
+    stabilization.py         # Application Logic Layer
+    plot_utils.py            # Grafici Matplotlib
+    video_utils.py           # Video comparativi + FFmpeg H.264
+    config_loader.py         # Caricamento YAML
+    styles.py                # CSS Streamlit
+config/
+    config_block_matching.yaml
+    config_optical_flow.yaml
+    config_orb.yaml
+app.py                       # Entry point Streamlit
+main.py                      # Entry point CLI
+requirements.txt
+\end{verbatim}
+
+\chapter{File di Configurazione YAML}
+
+\section{\texttt{config\_block\_matching.yaml}}
+
+\begin{lstlisting}[language=bash, caption={Configurazione Block Matching}, basicstyle=\ttfamily\normalsize]
+motion_estimation:
+  block_size: 32          # Dimensione blocco (px)
+  search_range: 12        # Raggio area di ricerca (px)
+  metric: "sad"           # 'sad' o 'mad'
+
+global_motion:
+  motion_model: "translation"
+  outlier_threshold: 2.0
+  aggregation_method: "median"
+  estimate_rotation: true
+  estimation_method: "block_matching"
+
+trajectory_smoothing:
+  smoothing_window: 45
+  filter_type: "gaussian"
+  gaussian_sigma: 2.0
+  exponential_alpha: 0.9
+  deadband_px: 0.0
+
+motion_compensation:
+  crop_ratio: 0.85
+  border_mode: "replicate"
+\end{lstlisting}
+
+\clearpage
+\section{\texttt{config\_optical\_flow.yaml}}
+
+\begin{lstlisting}[language=bash, caption={Configurazione Optical Flow -- Shi-Tomasi + Lucas-Kanade}, basicstyle=\ttfamily\normalsize]
+global_motion:
+  motion_model: "translation"
+  estimation_method: "optical_flow"
+  optical_flow:
+    feature_type: "shi_tomasi"   # Shi-Tomasi corner detection + LK tracking
+    transform_type: "partial"    # 'partial', 'affine', 'homography'
+
+    # Shi-Tomasi + Lucas-Kanade
+    max_corners: 1500
+    quality_level: 0.002
+    min_distance: 10
+    block_size: 7
+    win_size: 21
+    max_level: 3
+
+    # RANSAC
+    ransac_reproj_threshold: 6.0
+
+trajectory_smoothing:
+  smoothing_window: 45
+  filter_type: "gaussian"
+  gaussian_sigma: 2.0
+  deadband_px: 0.0
+
+motion_compensation:
+  crop_ratio: 0.85
+  border_mode: "replicate"
+\end{lstlisting}
+
+\clearpage
+\section{\texttt{config\_orb.yaml}}
+
+\begin{lstlisting}[language=bash, caption={Configurazione ORB -- Oriented FAST and Rotated BRIEF}, basicstyle=\ttfamily\normalsize]
+global_motion:
+  motion_model: "translation"
+  estimation_method: "optical_flow"  # pipeline condivisa, feature_type='orb'
+  optical_flow:
+    feature_type: "orb"          # ORB descriptor + BFMatcher Hamming
+    transform_type: "partial"    # 'partial', 'affine', 'homography'
+
+    # ORB
+    orb_n_features: 1000
+    orb_scale_factor: 1.2
+    orb_n_levels: 10
+    orb_edge_threshold: 31
+    orb_ratio_threshold: 0.75    # Lowe's ratio test
+
+    # RANSAC
+    ransac_reproj_threshold: 6.0
+
+trajectory_smoothing:
+  smoothing_window: 45
+  filter_type: "gaussian"
+  gaussian_sigma: 2.0
+  deadband_px: 0.0
+
+motion_compensation:
+  crop_ratio: 0.85
+  border_mode: "replicate"
+\end{lstlisting}

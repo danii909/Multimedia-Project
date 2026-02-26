@@ -1,0 +1,48 @@
+% =================================================
+% CAPITOLO 8 – Conclusioni
+% =================================================
+
+\chapter{Conclusioni}
+
+\section{Riepilogo del Lavoro}
+
+Il progetto ha prodotto un sistema completo di stabilizzazione video digitale con architettura modulare a cinque livelli. Sono stati implementati e integrati:
+
+\begin{itemize}
+    \item \textbf{Block Matching} con metrica SAD/MAD, eliminazione outlier via z-score e aggregazione configurabile (mediana, media, media pesata per confidenza);
+    \item \textbf{Optical Flow} con rilevamento Shi-Tomasi, tracciamento Lucas-Kanade piramidale e stima della trasformazione (Partial/Affine/Homography) tramite RANSAC;
+    \item \textbf{ORB Feature Matching} con Brute-Force Matcher, Hamming distance e Lowe's ratio test, abbinato agli stessi tre modelli RANSAC;
+    \item tre filtri di smoothing della traiettoria (Moving Average, Gaussiano, Esponenziale IIR) con clamping automatico della finestra;
+    \item compensazione geometrica con \texttt{warpAffine}, gestione bordi configurabile e cropping adattivo.
+\end{itemize}
+
+Il sistema espone le proprie funzionalità tramite un'interfaccia Streamlit con tre tab: stabilizzazione singola, confronto multi-metodo con barre di progresso dedicate, e analisi quantitativa delle metriche con grafici comparativi.
+
+\section{Risultati Principali}
+
+I test sperimentali su una sequenza di camminata a 1080p/30fps hanno prodotto i seguenti risultati chiave:
+
+\begin{itemize}
+    \item \textbf{ORB Partial} ottiene la stabilizzazione più efficace: JR X=87.7\%, JR Y=92.8\%, JR $\theta$=96.1\%, RMS X=5.16\,px, con un tempo di elaborazione di 24.9\,s.
+    \item \textbf{Optical Flow Partial} offre un compromesso favorevole: elaborazione in 18.1\,s con JR~$\approx$~57\% su entrambi gli assi (configurazione con finestra 15 frame).
+    \item Il modello \textbf{Homography} si rivela sistematicamente peggiore per questo tipo di moto, con RMS e JR inferiori rispetto a Partial e Affine in tutte le varianti testate.
+    \item Il modello \textbf{Partial} (similitudine rigida, 4 parametri) è il più adatto a sequenze con moto prevalentemente traslazionale e oscillatorio, risultando più stabile numericamente rispetto ad Affine e Homography.
+\end{itemize}
+
+\section{Limitazioni del Sistema}
+
+Il sistema presenta alcune limitazioni che ne circoscrivono l'applicabilità:
+
+\begin{itemize}
+    \item \textbf{Elaborazione offline}: la pipeline a due passate richiede l'intero video in ingresso; non è applicabile in tempo reale senza modifiche architetturali significative.
+    \item \textbf{Perdita di campo visivo}: il cropping introduce una riduzione del campo visivo proporzionale all'ampiezza delle oscillazioni; con moto molto ampio, il \texttt{crop\_ratio} deve essere ridotto ulteriormente.
+    \item \textbf{Scene dinamiche}: oggetti in movimento indipendente nella scena (pedoni, veicoli) possono contaminare la stima del GMV; la rimozione outlier via z-score mitiga ma non elimina questo problema.
+    \item \textbf{Block Matching}: il metodo è in stato di sviluppo per i test di confronto; la stima di rotazione è fissa a zero, limitando l'efficacia su scene con componenti rotazionali significative.
+    \item \textbf{Smoothing window}: la scelta della finestra è critica e dipende dalla velocità del moto intenzionale; finestre troppo ampie possono cancellare movimenti legittimi come pan e tilt.
+\end{itemize}
+
+\section{Considerazioni Finali}
+
+Il progetto dimostra come un approccio modulare, con chiara separazione tra stima del moto, filtraggio e compensazione, consenta di integrare e confrontare algoritmicamente strategie diverse senza modificare l'infrastruttura. La disponibilità di metriche quantitative oggettive (RMS e JR) ha permesso di evidenziare che la complessità del modello non corrisponde necessariamente a prestazioni migliori: per il tipo di moto analizzato, il modello più semplice (Partial) si è rivelato il più efficace.
+
+Il lavoro integra in modo coerente aspetti di visione artificiale, elaborazione numerica di segnali, geometria proiettiva e ingegneria del software, fornendo una base estensibile per applicazioni pratiche di stabilizzazione video.

@@ -1,0 +1,59 @@
+% =================================================
+% CAPITOLO 1 – Introduzione
+% =================================================
+
+\chapter{Introduzione}
+
+\section{Contesto e Motivazioni}
+
+La crescente diffusione di dispositivi mobili dotati di fotocamere ad alta risoluzione ha reso la produzione di contenuti video estremamente accessibile. Tuttavia, la registrazione manuale (hand-held) introduce inevitabilmente instabilità dovute a micro-movimenti involontari dell'operatore, vibrazioni ambientali o oscillazioni meccaniche del supporto.
+
+Tali instabilità si manifestano sotto forma di jitter, oscillazioni improvvise, drift progressivo o rotazioni indesiderate, compromettendo la qualità percettiva del video e rendendo difficoltosa la fruizione del contenuto.
+
+La stabilizzazione video digitale si propone di correggere tali effetti attraverso tecniche di stima del moto e compensazione geometrica, intervenendo direttamente sulle trasformazioni tra frame consecutivi. A differenza dei sistemi hardware (gimbal o stabilizzatori ottici), le tecniche software operano a posteriori sul segnale acquisito e richiedono algoritmi robusti di analisi e filtraggio del moto.
+
+Nel contesto dei sistemi multimediali, la stabilizzazione rappresenta un problema multidisciplinare che coinvolge:
+\begin{itemize}
+    \item visione artificiale,
+    \item elaborazione di segnali discreti,
+    \item modellazione geometrica delle trasformazioni,
+    \item ottimizzazione numerica.
+\end{itemize}
+
+Il presente progetto si inserisce in tale ambito proponendo un sistema modulare di stabilizzazione video implementato in Python, con interfaccia grafica interattiva e possibilità di confronto tra differenti metodologie di stima del moto.
+
+\section{Obiettivi del Progetto}
+
+L'obiettivo principale del progetto è la realizzazione di un sistema completo di stabilizzazione video che consenta:
+
+\begin{itemize}
+    \item l'implementazione di più algoritmi di stima del moto globale,
+    \item la comparazione quantitativa tra differenti approcci,
+    \item la configurabilità dinamica dei parametri algoritmici,
+    \item la visualizzazione grafica delle traiettorie e delle metriche di stabilità,
+    \item l'analisi comparativa dei risultati ottenuti.
+\end{itemize}
+
+In particolare, il sistema è stato progettato con una forte separazione tra:
+\begin{enumerate}
+    \item logica di elaborazione,
+    \item sistema di configurazione,
+    \item interfaccia utente,
+    \item modulo di analisi e visualizzazione.
+\end{enumerate}
+
+Un ulteriore obiettivo riguarda la valutazione oggettiva delle prestazioni tramite metriche quantitative, quali RMS dello spostamento e percentuale di riduzione del jitter.
+
+\section{Organizzazione della Relazione}
+
+La relazione è strutturata come segue:
+
+\begin{itemize}
+    \item Il Capitolo 2 introduce i fondamenti teorici della stabilizzazione video: modelli di trasformazione, costruzione della traiettoria e filtraggio.
+    \item Il Capitolo 3 descrive nel dettaglio i tre metodi implementati per la stima del moto globale.
+    \item Il Capitolo 4 illustra l'architettura software modulare a cinque livelli del sistema.
+    \item Il Capitolo 5 approfondisce l'implementazione tecnica, con listati di codice e descrizione delle metriche calcolate.
+    \item Il Capitolo 6 descrive l'interfaccia utente Streamlit e le funzionalità offerte.
+    \item Il Capitolo 7 riporta i test sperimentali e l'analisi quantitativa dei risultati.
+    \item Il Capitolo 8 conclude il lavoro evidenziando i risultati principali, le limitazioni e i possibili sviluppi futuri.
+\end{itemize}

@@ -1,0 +1,122 @@
+% =================================================
+% CAPITOLO 5 – Implementazione
+% =================================================
+
+\chapter{Implementazione}
+
+\section{Stack Tecnologico}
+
+L'intero sistema è stato sviluppato in linguaggio Python~3, scelto per:
+
+\begin{itemize}
+    \item ampia disponibilità di librerie per visione artificiale,
+    \item rapidità di prototipazione,
+    \item integrazione nativa con Streamlit per interfacce web interattive.
+\end{itemize}
+
+Le principali tecnologie utilizzate sono:
+
+\begin{itemize}
+    \item \textbf{OpenCV~4.5+} (\texttt{opencv-python-headless}, \texttt{opencv-contrib-python-headless})~\cite{opencv2024} – rilevamento feature, tracciamento LK, stima trasformazioni RANSAC, \texttt{warpAffine};
+    \item \textbf{NumPy~1.21+} – operazioni numeriche vettorializzate su traiettorie e matrici;
+    \item \textbf{Streamlit}~\cite{streamlit2024} – interfaccia grafica web con componenti reattivi;
+    \item \textbf{FFmpeg} (via \texttt{imageio-ffmpeg~0.4+}) – transcodifica del video di output in H.264 per compatibilità browser;
+    \item \textbf{Matplotlib} – generazione dei grafici di traiettoria e metriche comparative;
+    \item \textbf{PyYAML~6.0+} – caricamento e parsing dei file di configurazione.
+\end{itemize}
+
+\section{Pipeline di Stabilizzazione a Due Passate}
+
+La classe \texttt{VideoStabilizer} implementa una pipeline a due passate sull'intero video:
+
+\begin{enumerate}
+    \item \textbf{Primo passaggio} (\texttt{\_first\_pass}): il video viene letto sequenzialmente; per ogni coppia di frame consecutivi viene stimato il GMV $(\Delta x_t, \Delta y_t, \Delta\theta_t)$ e accumulato nella traiettoria cumulativa.
+    \item \textbf{Secondo passaggio} (\texttt{\_second\_pass}): il video viene riletto; per ogni frame viene calcolata la trasformazione correttiva dalla differenza tra traiettoria smooth e originale, e applicata tramite \texttt{warpAffine}.
+\end{enumerate}
+
+La separazione in due passate è necessaria perché il filtro di smoothing è acausale (accede a frame futuri): è possibile applicarlo solo una volta completata la traiettoria completa.
+
+\begin{lstlisting}[language=Python, caption={Selezione del metodo di stima GMV in VideoStabilizer}]
+def _estimate_gmv(self, prev_gray, curr_gray):
+    if self.gmv_estimation_method == 'optical_flow':
+        return self._estimate_gmv_optical_flow(prev_gray, curr_gray)
+    # Default: block matching + aggregazione
+    motion_vectors, confidence = self.motion_estimator.estimate_motion(
+        curr_gray, prev_gray)
+    return self.global_motion_estimator.estimate_global_motion(
+        motion_vectors, confidence)
+\end{lstlisting}
+
+\section{Costruzione e Filtraggio della Traiettoria}
+
+Le trasformazioni incrementali stimate vengono accumulate in una struttura \texttt{deque} dalla classe \texttt{TrajectoryFilter}:
+
+\[
+X_t = \sum_{i=1}^{t} \Delta x_i, \qquad Y_t = \sum_{i=1}^{t} \Delta y_i, \qquad \Theta_t = \sum_{i=1}^{t} \Delta\theta_i
+\]
+
+La traiettoria cumulativa $\mathbf{C}_t = (X_t, Y_t, \Theta_t)$ contiene sia il movimento intenzionale sia il jitter. Il filtro di smoothing produce $\tilde{\mathbf{C}}_t$, e la trasformazione correttiva applicata al frame $t$ è:
+
+\[
+(\delta x_t, \delta y_t, \delta\theta_t) = \tilde{\mathbf{C}}_t - \mathbf{C}_t
+\]
+
+La classe \texttt{TrajectoryFilter} implementa automaticamente un \emph{clamping} della finestra: se \texttt{smoothing\_window} supera il numero di frame disponibili, viene ridotta al massimo consentito.
+
+\section{Compensazione del Moto e Gestione dei Bordi}
+
+La classe \texttt{MotionCompensator} applica la trasformazione correttiva tramite \texttt{cv2.warpAffine} con interpolazione bilineare (\texttt{INTER\_LINEAR}). La matrice di trasformazione è costruita come rotazione attorno al centro del frame più traslazione:
+
+\begin{lstlisting}[language=Python, caption={Costruzione matrice affine di compensazione}]
+def _create_affine_matrix(self, tx, ty, angle, width, height):
+    if abs(angle) < 0.01:
+        return np.float32([[1, 0, tx], [0, 1, ty]])
+    cx, cy = width / 2.0, height / 2.0
+    M = cv2.getRotationMatrix2D((cx, cy), -angle, scale=1.0)
+    M[0, 2] += tx
+    M[1, 2] += ty
+    return M
+\end{lstlisting}
+
+Le aree che escono dal campo visivo dopo la compensazione vengono gestite con una delle tre modalità configurabili:
+
+\begin{itemize}
+    \item \textbf{\texttt{constant}}: riempimento con pixel neri (default),
+    \item \textbf{\texttt{replicate}}: replicazione del pixel di bordo,
+    \item \textbf{\texttt{reflect}}: riflessione speculare del contenuto.
+\end{itemize}
+
+Un cropping centrale (parametro \texttt{crop\_ratio~=~0.85}) seguito da ridimensionamento alle dimensioni originali consente di eliminare le fasce nere residue dal video finale.
+
+\section{Sistema di Metriche Quantitative}
+
+\subsection{Root Mean Square del Moto Incrementale}
+
+L'RMS è calcolato sugli \emph{step incrementali} della traiettoria (differenza prima), non sulla traiettoria cumulativa:
+
+\[
+RMS_x = \sqrt{\frac{1}{N-1}\sum_{t=2}^{N}(X_t - X_{t-1})^2}
+\]
+
+Analogamente per $RMS_y$ e $RMS_\theta$. Questo riflette l'ampiezza media delle oscillazioni frame-per-frame.
+
+\subsection{Jitter Reduction}
+
+La riduzione del jitter misura la diminuzione di \emph{varianza} degli step incrementali tra traiettoria originale e traiettoria smoothed:
+
+\[
+JR_x = \left(1 - \frac{\mathrm{Var}(\Delta \tilde{X})}{\mathrm{Var}(\Delta X)}\right)\times 100\%
+\]
+
+dove $\Delta X_t = X_t - X_{t-1}$ e $\Delta\tilde{X}_t = \tilde{X}_t - \tilde{X}_{t-1}$. Una riduzione del $90\%$ indica che la varianza del moto residuo è un decimo di quella originale.
+
+\section{Generazione dei Video Comparativi}
+
+Il modulo \texttt{video\_utils.py} genera:
+
+\begin{itemize}
+    \item confronto 1v1 originale/stabilizzato con affiancamento frame-by-frame,
+    \item griglia multi-video con più algoritmi sincronizzati e annotati con etichette.
+\end{itemize}
+
+Il file di output viene transcodificato da codec \texttt{mp4v} a H.264 tramite chiamata subprocess a FFmpeg, garantendo compatibilità con il player HTML5 di Streamlit.

@@ -1,0 +1,243 @@
+% =================================================
+% CAPITOLO 2 – Fondamenti Teorici
+% =================================================
+
+\chapter{Fondamenti Teorici}
+
+\section{Il Problema della Stabilizzazione Video}
+
+Un video può essere modellato come una sequenza discreta di frame
+\[
+\{I_t\}_{t=1}^{N}
+\]
+dove $I_t$ rappresenta l'immagine al tempo discreto $t$.
+
+In condizioni ideali, la traiettoria della telecamera dovrebbe essere fluida e coerente con il movimento intenzionale dell'operatore. Tuttavia, durante la registrazione manuale, si introducono variazioni indesiderate che si manifestano come:
+
+\begin{itemize}
+    \item \textbf{Jitter}: oscillazioni rapide e ad alta frequenza,
+    \item \textbf{Drift}: spostamento progressivo non intenzionale,
+    \item \textbf{Micro-rotazioni}: variazioni angolari tra frame consecutivi,
+    \item \textbf{Vibrazioni meccaniche}: tipiche di dispositivi montati su veicoli.
+\end{itemize}
+
+La stabilizzazione digitale mira a stimare il moto globale tra frame consecutivi e a rimuovere la componente ad alta frequenza responsabile dell'instabilità, preservando al contempo il movimento intenzionale a bassa frequenza.
+
+\subsection{Tipologie di Instabilità}
+
+Le principali categorie di instabilità che affliggono le riprese manuali sono:
+\begin{itemize}
+    \item \textbf{Jitter ad alta frequenza}: oscillazioni rapide con ampiezza ridotta (tipicamente 2–15\,px) causate dal tremore della mano. Si manifestano come flickering visivo a frequenze superiori a circa 5\,Hz.
+    \item \textbf{Drift a bassa frequenza}: deriva progressiva della traiettoria causata da movimenti posturali dell'operatore. Può accumularsi su scale temporali di diversi secondi.
+    \item \textbf{Oscillazioni periodiche}: pattern ritmici legati a movimenti ciclici (es.\ passi durante la camminata). Producono uno spostamento oscillante prevalentemente verticale con periodo proporzionale alla frequenza del passo.
+    \item \textbf{Micro-rotazioni} (roll): variazioni angolari involontarie attorno all'asse ottico, particolarmente evidenti nei dispositivi mobili tenuti con una mano.
+    \item \textbf{Vibrazioni meccaniche}: instabilità ad alta frequenza tipiche di riprese da veicoli o droni, spesso accompagnate da componenti di shake multi-assiale.
+\end{itemize}
+
+\section{Modelli di Movimento Globale}
+
+La stabilizzazione si basa sull'assunzione che il moto dominante tra due frame consecutivi possa essere approssimato tramite una trasformazione geometrica globale.
+
+\subsection{Modello di Traslazione}
+
+Il modello più semplice considera uno spostamento bidimensionale:
+
+\[
+\begin{bmatrix}
+x' \\
+y'
+\end{bmatrix}
+=
+\begin{bmatrix}
+x \\
+y
+\end{bmatrix}
++
+\begin{bmatrix}
+\Delta x \\
+\Delta y
+\end{bmatrix}
+\]
+
+Questo modello è computazionalmente efficiente ma non tiene conto di rotazioni o deformazioni prospettiche.
+
+\subsection{Trasformazione di Similarità (Affine Parziale)}
+
+La trasformazione di similarità, nota anche come \emph{affine parziale}, estende il modello traslazionale includendo rotazione e scala uniforme:
+
+\[
+\begin{bmatrix}
+x' \\
+y' \\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+s\cos\theta & -s\sin\theta & t_x \\
+s\sin\theta &  s\cos\theta & t_y \\
+0 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+x \\
+y \\
+1
+\end{bmatrix}
+\]
+
+Questo modello a 4 parametri $(t_x, t_y, \theta, s)$ è la scelta di default nel sistema (\texttt{transform\_type: partial}, stimato tramite \texttt{estimateAffinePartial2D}). Rispetto alla traslazione pura cattura anche le micro-rotazioni dell'asse ottico, mantenendo però maggiore stabilità numerica rispetto al modello affine completo in quanto impone la conservazione degli angoli (no shear) e una scala isotropa.
+
+\subsection{Trasformazione Affine}
+
+La trasformazione affine permette di modellare traslazione, rotazione, scala e shear:
+
+\[
+\begin{bmatrix}
+x' \\
+y' \\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+a_{11} & a_{12} & t_x \\
+a_{21} & a_{22} & t_y \\
+0 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+x \\
+y \\
+1
+\end{bmatrix}
+\]
+
+Essa rappresenta un compromesso tra flessibilità e stabilità numerica.
+
+\subsection{Omografia}
+
+Nel caso più generale si utilizza una trasformazione proiettiva~\cite{hartley2003multiple}:
+
+\[
+\mathbf{x}' = H \mathbf{x}
+\]
+
+dove $H$ è una matrice $3 \times 3$ definita a scala, in grado di modellare variazioni prospettiche.
+
+Questo modello è più espressivo ma più sensibile al rumore e agli errori di stima.
+
+\section{Stima del Moto Globale}
+
+La stima del moto globale tra frame consecutivi può avvenire secondo due principali paradigmi:
+
+\begin{itemize}
+    \item \textbf{Approccio block-based}, basato su matching tra blocchi di pixel;
+    \item \textbf{Approccio feature-based}, basato su rilevamento e tracciamento di punti di interesse.
+\end{itemize}
+
+Nel primo caso, l'immagine viene suddivisa in blocchi regolari e si ricerca lo spostamento ottimale tramite metriche di similarità.
+
+Nel secondo caso, si individuano feature robuste e si stimano i parametri della trasformazione tramite metodi robusti (es. RANSAC).
+
+\section{Costruzione della Traiettoria}
+
+Una volta stimati i parametri di trasformazione tra frame consecutivi, si ottiene una sequenza di trasformazioni incrementali:
+
+\[
+T_1, T_2, \dots, T_N
+\]
+
+La traiettoria cumulativa della camera viene costruita tramite composizione:
+
+\[
+C_t = T_1 \circ T_2 \circ \dots \circ T_t
+\]
+
+Nel caso del modello traslazionale, la traiettoria si riduce alla somma cumulativa degli spostamenti:
+
+\[
+X_t = \sum_{i=1}^{t} \Delta x_i
+\quad
+Y_t = \sum_{i=1}^{t} \Delta y_i
+\]
+
+La traiettoria risultante contiene sia il movimento desiderato sia la componente ad alta frequenza responsabile dell'instabilità.
+
+\section{Filtraggio della Traiettoria}
+
+Per separare il movimento intenzionale dal jitter, si applica un filtro passa-basso alla traiettoria.
+
+Sia $C_t$ la traiettoria cumulativa e $\tilde{C}_t$ la versione filtrata:
+
+\[
+\tilde{C}_t = \mathcal{F}(C_t)
+\]
+
+dove $\mathcal{F}$ rappresenta un operatore di smoothing.
+
+Tra i filtri comunemente utilizzati:
+
+\begin{itemize}
+    \item Media mobile (Moving Average),
+    \item Filtro Gaussiano,
+    \item Filtro esponenziale.
+\end{itemize}
+
+La scelta della finestra di smoothing influenza direttamente il trade-off tra stabilità e reattività del movimento.
+
+\subsection{Moving Average}
+
+Il filtro a media mobile centrata calcola, per il frame $t$, la media della traiettoria entro una finestra simmetrica di semi-ampiezza $w/2$:
+
+\[
+\tilde{C}_t = \frac{1}{|\mathcal{W}_t|} \sum_{i \in \mathcal{W}_t} C_i, \qquad \mathcal{W}_t = [\max(0,\, t-\tfrac{w}{2}),\; \min(N,\, t+\tfrac{w}{2})]
+\]
+
+L'implementazione scorre frame per frame calcolando la media dei valori nella finestra corrente, gestendo automaticamente i bordi con finestre di dimensione ridotta. Questo filtro attenua uniformemente tutte le frequenze al di sopra di $f_c \approx f_{fps}/(w)$.
+
+\subsection{Filtro Gaussiano}
+
+Il filtro gaussiano sostituisce il kernel uniforme con una finestra pesata:
+
+\[
+\tilde{C}_t = \sum_{i \in \mathcal{W}_t} h_i \cdot C_i, \qquad h_i \propto \exp\!\left(-\frac{(i-t)^2}{2\sigma^2}\right)
+\]
+
+dove il kernel $\{h_i\}$ viene ricalcolato e rinormalizzato per ogni frame per gestire correttamente i bordi della sequenza. Il parametro $\sigma$ (default: $w/6$) controlla la larghezza della gaussiana: valori più bassi producono meno smorzamento, valori più alti avvicinano il comportamento alla media mobile. Rispetto alla media mobile, il filtro gaussiano riduce le oscillazioni \emph{ringing} causate dalla discontinuità del kernel uniforme.
+
+\subsection{Filtro Esponenziale}
+
+Il filtro esponenziale (Exponential Moving Average, EMA) è un filtro IIR causale che processa la sequenza in un unico passaggio:
+
+\[
+\tilde{C}_t = \alpha \cdot C_t + (1 - \alpha) \cdot \tilde{C}_{t-1}, \qquad \alpha = \frac{2}{w + 1}
+\]
+
+A differenza dei filtri a finestra scorrevole, richiede memoria $O(1)$ ed è adatto all'elaborazione in streaming. Il coefficiente $\alpha$ è derivato dalla \texttt{smoothing\_window} con la relazione approssimata citata, ma è configurabile indipendentemente \texttt{exponential\_alpha}. Con $\alpha \to 1$ il filtro segue fedelmente l'originale (poco smoothing); con $\alpha \to 0$ reagisce lentamente alle variazioni (molto smoothing).
+
+\section{Compensazione del Moto}
+
+La trasformazione correttiva da applicare a ciascun frame è definita come:
+
+\[
+T_t^{corr} = \tilde{C}_t \circ C_t^{-1}
+\]
+
+Applicando tale trasformazione a ogni frame si ottiene:
+
+\[
+I_t^{stab} = T_t^{corr}(I_t)
+\]
+
+Poiché la compensazione comporta spostamenti dell'immagine, è necessario gestire le regioni fuori campo tramite:
+
+\begin{itemize}
+    \item cropping dinamico,
+    \item padding con modalità di bordo,
+    \item ridimensionamento globale.
+\end{itemize}
+
+La stabilizzazione finale è dunque il risultato della combinazione di:
+\begin{enumerate}
+    \item stima del moto,
+    \item costruzione della traiettoria,
+    \item filtraggio,
+    \item compensazione geometrica.
+\end{enumerate}

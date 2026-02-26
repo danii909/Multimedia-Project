@@ -1,0 +1,135 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+% -------------------------------------------------
+% Lingua e codifica
+% -------------------------------------------------
+\usepackage[italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+% -------------------------------------------------
+% Margini
+% -------------------------------------------------
+\usepackage[a4paper,margin=2.7cm]{geometry}
+
+% -------------------------------------------------
+% Grafica e tabelle
+% -------------------------------------------------
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\graphicspath{
+  {./images/cap1/}
+  {./images/cap2/}
+  {./images/cap3/}
+  {./images/cap4/}
+  {./images/cap5/}
+  {./images/cap6/}
+  {./images/cap7/}
+  {./images/cap8/}
+}
+
+% -------------------------------------------------
+% Matematica
+% -------------------------------------------------
+\usepackage{amsmath,amssymb}
+
+% -------------------------------------------------
+% Liste personalizzate
+% -------------------------------------------------
+\usepackage{enumitem}
+\setlist{noitemsep}
+
+% -------------------------------------------------
+% Codice
+% -------------------------------------------------
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{orange},
+  showstringspaces=false
+}
+
+% -------------------------------------------------
+% Link
+% -------------------------------------------------
+\usepackage[hidelinks]{hyperref}
+
+% -------------------------------------------------
+% Bibliografia
+% -------------------------------------------------
+\usepackage[numbers]{natbib}
+
+% -------------------------------------------------
+% Frontespizio
+% -------------------------------------------------
+\usepackage{tikz}
+\definecolor{accentblue}{RGB}{0,60,120}
+
+% -------------------------------------------------
+% Spaziatura
+% -------------------------------------------------
+\setlength{\parskip}{0.4em}
+\setlength{\parindent}{0pt}
+
+% =================================================
+% DOCUMENTO
+% =================================================
+
+\begin{document}
+
+% -------------------------------------------------
+% Frontespizio
+% -------------------------------------------------
+\input{parts/frontespizio}
+
+% -------------------------------------------------
+% Materiale preliminare
+% -------------------------------------------------
+\pagenumbering{roman}
+
+\input{parts/abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\clearpage
+\pagenumbering{arabic}
+
+% -------------------------------------------------
+% Capitoli
+% -------------------------------------------------
+\input{parts/cap1_introduzione}
+\input{parts/cap2_fondamenti}
+\input{parts/cap3_metodi}
+\input{parts/cap4_architettura}
+\input{parts/cap5_implementazione}
+\input{parts/cap6_interfaccia}
+\input{parts/cap7_test}
+\input{parts/cap8_conclusioni}
+
+% -------------------------------------------------
+% Appendici
+% -------------------------------------------------
+\input{parts/appendici}
+
+% -------------------------------------------------
+% Bibliografia
+% -------------------------------------------------
+\bibliographystyle{plainnat}
+\bibliography{bibliografia}
+
+\end{document}

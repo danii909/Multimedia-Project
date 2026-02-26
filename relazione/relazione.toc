@@ -1,0 +1,97 @@
+\babel@toc {italian}{}\relax 
+\babel@toc {italian}{}\relax 
+\contentsline {chapter}{Abstract}{i}{chapter*.1}%
+\contentsline {chapter}{\numberline {1}Introduzione}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Contesto e Motivazioni}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Obiettivi del Progetto}{1}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Organizzazione della Relazione}{2}{section.1.3}%
+\contentsline {chapter}{\numberline {2}Fondamenti Teorici}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Il Problema della Stabilizzazione Video}{3}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Tipologie di Instabilità}{3}{subsection.2.1.1}%
+\contentsline {section}{\numberline {2.2}Modelli di Movimento Globale}{4}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Modello di Traslazione}{4}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Trasformazione di Similarità (Affine Parziale)}{4}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Trasformazione Affine}{4}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.4}Omografia}{5}{subsection.2.2.4}%
+\contentsline {section}{\numberline {2.3}Stima del Moto Globale}{5}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Costruzione della Traiettoria}{5}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Filtraggio della Traiettoria}{6}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Moving Average}{6}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Filtro Gaussiano}{6}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}Filtro Esponenziale}{7}{subsection.2.5.3}%
+\contentsline {section}{\numberline {2.6}Compensazione del Moto}{7}{section.2.6}%
+\contentsline {chapter}{\numberline {3}Metodi di Stabilizzazione Implementati}{8}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Panoramica Generale}{8}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Block-Based Motion Estimation}{8}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Funzione di Costo}{8}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Aggregazione del Moto Globale}{9}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Parametri Configurabili}{9}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Optical Flow – Shi-Tomasi + Lucas-Kanade}{9}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Rilevamento dei Corner (Shi-Tomasi)}{10}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Tracciamento Lucas-Kanade Piramidale}{10}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Stima della Trasformazione Globale via RANSAC}{10}{subsection.3.3.3}%
+\contentsline {section}{\numberline {3.4}ORB Feature Matching}{10}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Rilevamento e Descrizione}{11}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Matching e Lowe's Ratio Test}{11}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Stima della Trasformazione Globale}{11}{subsection.3.4.3}%
+\contentsline {section}{\numberline {3.5}Confronto Strutturale tra i Metodi}{11}{section.3.5}%
+\contentsline {chapter}{\numberline {4}Architettura del Sistema}{12}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Panoramica Architetturale}{12}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Struttura dei Moduli}{12}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Core Stabilizzazione (\texttt {src/})}{12}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}UI Layer (\texttt {ui/})}{13}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Entry Point}{13}{subsection.4.2.3}%
+\contentsline {section}{\numberline {4.3}Core di Stabilizzazione}{13}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}VideoStabilizer come Orchestratore}{13}{subsection.4.3.1}%
+\contentsline {section}{\numberline {4.4}Interfaccia Utente (UI Layer)}{13}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Separazione tra UI e Logica}{14}{subsection.4.4.1}%
+\contentsline {section}{\numberline {4.5}Application Logic Layer}{14}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Configuration Layer}{14}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Flusso di Esecuzione}{15}{section.4.7}%
+\contentsline {section}{\numberline {4.8}Considerazioni Architetturali}{15}{section.4.8}%
+\contentsline {chapter}{\numberline {5}Implementazione}{16}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Stack Tecnologico}{16}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Pipeline di Stabilizzazione a Due Passate}{16}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Costruzione e Filtraggio della Traiettoria}{17}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Compensazione del Moto e Gestione dei Bordi}{17}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Sistema di Metriche Quantitative}{18}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Root Mean Square del Moto Incrementale}{18}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Jitter Reduction}{18}{subsection.5.5.2}%
+\contentsline {section}{\numberline {5.6}Generazione dei Video Comparativi}{18}{section.5.6}%
+\contentsline {chapter}{\numberline {6}Interfaccia Utente}{19}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Struttura Generale dell'Applicazione}{19}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Caricamento del Video}{19}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Stabilizzazione Singola (Confronto 1v1)}{20}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Confronto Multi-Metodo}{20}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Analisi delle Metriche}{21}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Visualizzazione Grafica}{21}{section.6.6}%
+\contentsline {section}{\numberline {6.7}Esperienza Utente}{21}{section.6.7}%
+\contentsline {chapter}{\numberline {7}Test Sperimentali e Analisi dei Risultati}{22}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Setup Sperimentale}{22}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Metriche di Valutazione}{23}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Risultati Quantitativi}{23}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Analisi delle Traiettorie}{24}{section.7.4}%
+\contentsline {subsection}{\numberline {7.4.1}Block Matching}{25}{subsection.7.4.1}%
+\contentsline {subsection}{\numberline {7.4.2}Optical Flow – Partial}{26}{subsection.7.4.2}%
+\contentsline {subsection}{\numberline {7.4.3}Optical Flow – Affine}{27}{subsection.7.4.3}%
+\contentsline {subsection}{\numberline {7.4.4}Optical Flow – Homography}{28}{subsection.7.4.4}%
+\contentsline {subsection}{\numberline {7.4.5}ORB Matching – Partial}{29}{subsection.7.4.5}%
+\contentsline {subsection}{\numberline {7.4.6}ORB Matching – Affine}{30}{subsection.7.4.6}%
+\contentsline {subsection}{\numberline {7.4.7}ORB Matching – Homography}{31}{subsection.7.4.7}%
+\contentsline {section}{\numberline {7.5}Grafici Comparativi}{31}{section.7.5}%
+\contentsline {section}{\numberline {7.6}Discussione dei Risultati}{32}{section.7.6}%
+\contentsline {subsection}{\numberline {7.6.1}Limiti delle metriche quantitative: il caso Block Matching}{32}{subsection.7.6.1}%
+\contentsline {subsection}{\numberline {7.6.2}Optical Flow vs ORB}{33}{subsection.7.6.2}%
+\contentsline {subsection}{\numberline {7.6.3}Confronto tra Modelli di Trasformazione}{33}{subsection.7.6.3}%
+\contentsline {subsection}{\numberline {7.6.4}Considerazioni sulla Sovra-Parametrizzazione}{33}{subsection.7.6.4}%
+\contentsline {section}{\numberline {7.7}Sintesi e Verdetto}{34}{section.7.7}%
+\contentsline {chapter}{\numberline {8}Conclusioni}{35}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Riepilogo del Lavoro}{35}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Risultati Principali}{35}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Limitazioni del Sistema}{36}{section.8.3}%
+\contentsline {section}{\numberline {8.4}Considerazioni Finali}{36}{section.8.4}%
+\contentsline {chapter}{\numberline {A}Struttura Completa del Progetto}{37}{appendix.Alph1}%
+\contentsline {chapter}{\numberline {B}File di Configurazione YAML}{38}{appendix.Alph2}%
+\contentsline {section}{\numberline {B.1}\texttt {config\_block\_matching.yaml}}{38}{section.Alph2.1}%
+\contentsline {section}{\numberline {B.2}\texttt {config\_optical\_flow.yaml}}{39}{section.Alph2.2}%
+\contentsline {section}{\numberline {B.3}\texttt {config\_orb.yaml}}{40}{section.Alph2.3}%

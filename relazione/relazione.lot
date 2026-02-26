@@ -1,0 +1,14 @@
+\babel@toc {italian}{}\relax 
+\babel@toc {italian}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Confronto strutturale tra i metodi implementati}}{11}{table.caption.5}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {7.1}{\ignorespaces Confronto quantitativo tra tutti i metodi (\texttt {smoothing\_window}~=~45, filtro gaussiano $\sigma =2$). Block Matching non stima la componente rotazionale ($\theta $). In grassetto i valori migliori per ciascuna colonna (escluso Block Matching per il tempo, che impiega circa 4843\,s per via della ricerca esaustiva a grid)}}{23}{table.caption.7}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }

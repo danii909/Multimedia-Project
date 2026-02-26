@@ -1,0 +1,168 @@
+% =================================================
+% CAPITOLO 4 – Architettura del Sistema
+% =================================================
+
+\chapter{Architettura del Sistema}
+
+\section{Panoramica Architetturale}
+
+Il sistema di stabilizzazione è stato progettato seguendo un'architettura modulare a più livelli, con una chiara separazione tra:
+
+\begin{itemize}
+    \item livello di interfaccia utente,
+    \item livello di orchestrazione applicativa,
+    \item core di elaborazione,
+    \item sistema di configurazione.
+\end{itemize}
+
+Questa separazione consente di mantenere indipendenti la logica algoritmica e la presentazione, facilitando manutenzione, estensibilità e testing.
+
+L'applicazione è strutturata secondo un modello a strati:
+
+\begin{enumerate}
+    \item \textbf{Entry Point Layer} – gestione inizializzazione e routing.
+    \item \textbf{UI Layer} – gestione interfaccia e interazione utente.
+    \item \textbf{Application Logic Layer} – costruzione configurazioni ed esecuzione pipeline.
+    \item \textbf{Core Processing Layer} – implementazione algoritmi di stabilizzazione.
+    \item \textbf{Configuration Layer} – caricamento parametri da file YAML.
+\end{enumerate}
+
+\section{Struttura dei Moduli}
+\label{sec:struttura_moduli}
+
+\subsection{Core Stabilizzazione (\texttt{src/})}
+\begin{itemize}
+    \item \texttt{motion\_estimation.py} – classe \texttt{MotionEstimator}: Block Matching con SAD/MAD
+    \item \texttt{global\_motion.py} – classe \texttt{GlobalMotionEstimator}: aggregazione GMV, z-score outlier removal
+    \item \texttt{trajectory\_smoothing.py} – classe \texttt{TrajectoryFilter}: Moving Average, Gaussiano, Esponenziale
+    \item \texttt{motion\_compensation.py} – classe \texttt{MotionCompensator}: \texttt{warpAffine}, crop e gestione bordi
+    \item \texttt{video\_stabilizer.py} – classe \texttt{VideoStabilizer}: orchestrazione pipeline a due passate
+\end{itemize}
+
+\subsection{UI Layer (\texttt{ui/})}
+\begin{itemize}
+    \item \texttt{tab\_1v1.py} – tab stabilizzazione singola con confronto originale/stabilizzato
+    \item \texttt{tab\_process.py} – tab confronto multi-metodo con barre di progresso dedicate
+    \item \texttt{tab\_metrics.py} – tab analisi metriche con tabelle e grafici comparativi
+    \item \texttt{stabilization.py} – Application Logic Layer: costruzione configurazioni e dispatching
+    \item \texttt{plot\_utils.py} – generazione grafici traiettorie e metriche tramite Matplotlib
+    \item \texttt{video\_utils.py} – generazione video comparativi e conversione H.264 via FFmpeg
+    \item \texttt{config\_loader.py} – caricamento e parsing dei file YAML
+    \item \texttt{styles.py} – stili CSS personalizzati per l'interfaccia Streamlit
+\end{itemize}
+
+\subsection{Entry Point}
+\begin{itemize}
+    \item app.py
+\end{itemize}
+
+\section{Core di Stabilizzazione}
+
+Il core di elaborazione è organizzato nella cartella \texttt{src/} e contiene i moduli responsabili della pipeline algoritmica, già descritti nella Sezione~\ref{sec:struttura_moduli}.
+
+\subsection{VideoStabilizer come Orchestratore}
+
+La classe principale del core incapsula l'intera pipeline:
+
+\begin{enumerate}
+    \item lettura frame,
+    \item stima trasformazioni incrementali,
+    \item costruzione traiettoria,
+    \item smoothing,
+    \item compensazione e scrittura output,
+    \item calcolo metriche.
+\end{enumerate}
+
+Questo approccio centralizza la logica di stabilizzazione, mantenendo indipendenti i singoli moduli funzionali.
+
+\section{Interfaccia Utente (UI Layer)}
+
+L'interfaccia è sviluppata tramite framework Streamlit ed è organizzata nella cartella \texttt{ui/}.
+
+La struttura è suddivisa in tab funzionali:
+
+\begin{itemize}
+    \item \textbf{Tab Stabilizzazione Singola (1v1)} – confronto tra originale e algoritmo selezionato.
+    \item \textbf{Tab Confronto Multi-Metodo} – esecuzione parallela di più algoritmi.
+    \item \textbf{Tab Analisi Metriche} – visualizzazione quantitativa e grafici comparativi.
+\end{itemize}
+
+\subsection{Separazione tra UI e Logica}
+
+La UI non implementa direttamente algoritmi, ma:
+
+\begin{enumerate}
+    \item raccoglie parametri dall'utente,
+    \item costruisce una configurazione strutturata,
+    \item invoca il core di stabilizzazione,
+    \item visualizza risultati e metriche.
+\end{enumerate}
+
+Questa separazione riduce l'accoppiamento tra interfaccia e logica computazionale.
+
+\section{Application Logic Layer}
+
+Tra UI e core è presente un livello di orchestrazione che si occupa di:
+
+\begin{itemize}
+    \item costruzione dinamica delle configurazioni,
+    \item mapping tra parametri UI e struttura attesa dal core,
+    \item gestione dell'esecuzione multi-metodo,
+    \item gestione delle callback di progresso.
+\end{itemize}
+
+Questo livello consente di mantenere il core indipendente dalla logica di presentazione e di supportare facilmente nuovi algoritmi.
+
+\section{Configuration Layer}
+
+Il sistema utilizza file YAML per definire i parametri di default degli algoritmi.
+
+Il Configuration Layer ha il compito di:
+
+\begin{itemize}
+    \item caricare i file YAML,
+    \item estrarre valori di default,
+    \item fornire opzioni per i widget dell'interfaccia,
+    \item mantenere separati codice e parametri.
+\end{itemize}
+
+Questa scelta progettuale consente:
+
+\begin{itemize}
+    \item modifica dei parametri senza alterare il codice,
+    \item maggiore leggibilità,
+    \item riusabilità delle configurazioni.
+\end{itemize}
+
+\section{Flusso di Esecuzione}
+
+Il flusso operativo del sistema può essere riassunto come segue:
+
+\begin{enumerate}
+    \item Caricamento video tramite sidebar.
+    \item Selezione metodo/i di stabilizzazione.
+    \item Configurazione parametri.
+    \item Avvio elaborazione.
+    \item Costruzione traiettoria e smoothing.
+    \item Generazione video stabilizzato.
+    \item Calcolo metriche quantitative.
+    \item Visualizzazione grafici e confronto.
+\end{enumerate}
+
+\section{Considerazioni Architetturali}
+
+L'architettura adottata presenta i seguenti vantaggi:
+
+\begin{itemize}
+    \item elevata modularità,
+    \item chiara separazione delle responsabilità,
+    \item facilità di estensione,
+    \item supporto nativo al confronto tra algoritmi,
+    \item gestione centralizzata delle metriche.
+\end{itemize}
+
+La presenza di un orchestratore centrale e di un layer di configurazione indipendente rende il sistema scalabile e coerente con principi di progettazione software moderna.
+
+Nel caso di confronto multi-metodo, il sistema esegue iterativamente la pipeline per ciascun algoritmo, aggiornando dinamicamente l'interfaccia tramite barre di progresso dedicate.
+
+La progettazione modulare consente di estendere il sistema con nuovi metodi di stima del moto senza modificare la struttura complessiva.

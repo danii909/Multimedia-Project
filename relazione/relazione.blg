@@ -1,0 +1,52 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: relazione.aux
+Reallocating 'name_of_file' (item size: 1) to 9 items.
+The style file: plainnat.bst
+Reallocating 'name_of_file' (item size: 1) to 13 items.
+Database file #1: bibliografia.bib
+Warning--empty journal in hartley2003multiple
+Warning--empty journal in rublee2011orb
+Warning--empty journal in shi1994good
+You've used 8 entries,
+            2773 wiz_defined-function locations,
+            640 strings with 6063 characters,
+and the built_in function-call counts, 3466 in all, are:
+= -- 326
+> -- 153
+< -- 9
++ -- 53
+- -- 45
+* -- 241
+:= -- 518
+add.period$ -- 24
+call.type$ -- 8
+change.case$ -- 37
+chr.to.int$ -- 8
+cite$ -- 19
+duplicate$ -- 174
+empty$ -- 293
+format.name$ -- 61
+if$ -- 732
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 6
+newline$ -- 48
+num.names$ -- 32
+pop$ -- 77
+preamble$ -- 1
+purify$ -- 31
+quote$ -- 0
+skip$ -- 147
+stack$ -- 0
+substring$ -- 160
+swap$ -- 27
+text.length$ -- 2
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 88
+warning$ -- 3
+while$ -- 36
+width$ -- 0
+write$ -- 105
+(There were 3 warnings)

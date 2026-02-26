@@ -1,0 +1,168 @@
+% =================================================
+% CAPITOLO 3 – Metodi di Stabilizzazione Implementati
+% =================================================
+
+\chapter{Metodi di Stabilizzazione Implementati}
+
+\section{Panoramica Generale}
+
+Il sistema sviluppato integra tre differenti approcci per la stima del moto globale tra frame consecutivi:
+
+\begin{itemize}
+    \item Block-Based Motion Estimation (Block Matching) con metrica SAD/MAD,
+    \item Optical Flow basato su corner detection Shi-Tomasi e tracciamento Lucas-Kanade,
+    \item Feature Matching tramite descrittori ORB con Brute-Force Matcher.
+\end{itemize}
+
+Tutti i metodi condividono la medesima pipeline a due passate:
+
+\begin{enumerate}
+    \item \textbf{Primo passaggio}: stima del moto incrementale frame per frame e costruzione della traiettoria cumulativa.
+    \item \textbf{Secondo passaggio}: applicazione del filtro di smoothing e compensazione geometrica per ogni frame.
+\end{enumerate}
+
+La differenza principale risiede nella modalità di estrazione delle corrispondenze e nella stima dei parametri di trasformazione globale.
+
+\section{Block-Based Motion Estimation}
+
+Il metodo Block Matching, implementato nella classe \texttt{MotionEstimator}, suddivide ciascun frame in blocchi non sovrapposti di dimensione fissa \texttt{block\_size}$\times$\texttt{block\_size} e ricerca il miglior match nel frame precedente entro una finestra di ricerca di raggio \texttt{search\_range}.
+
+\subsection{Funzione di Costo}
+
+Il matching è guidato da una funzione di costo pixel-wise. Sono implementate due metriche:
+
+\begin{itemize}
+    \item \textbf{SAD (Sum of Absolute Differences)}:
+    \[
+        D_{SAD}(B_t, B_{t-1}) = \sum_{i,j} \bigl|I_t(i,j) - I_{t-1}(i+\Delta x, j+\Delta y)\bigr|
+    \]
+    \item \textbf{MAD (Mean Absolute Difference)}:
+    \[
+        D_{MAD}(B_t, B_{t-1}) = \frac{1}{N^2}\sum_{i,j} \bigl|I_t(i,j) - I_{t-1}(i+\Delta x, j+\Delta y)\bigr|
+    \]
+\end{itemize}
+
+Per ogni blocco si esegue una ricerca esaustiva su tutte le posizioni possibili nell'area di ricerca, ottenendo il vettore di spostamento locale $(\Delta x_k, \Delta y_k)$ e un punteggio di confidenza $c_k \in [0,1]$.
+
+\subsection{Aggregazione del Moto Globale}
+
+I vettori locali vengono prima filtrati tramite z-score per rimuovere gli outlier (vettori con z-score superiore a \texttt{outlier\_threshold} deviazioni standard su almeno una componente), quindi aggregati tramite uno dei tre metodi configurabili:
+
+\begin{itemize}
+    \item \textbf{Mediana} (\texttt{median}): robusta agli outlier residui.
+    \item \textbf{Media} (\texttt{mean}): semplice e veloce.
+    \item \textbf{Media pesata} (\texttt{weighted\_mean}): ogni vettore contribuisce proporzionalmente alla propria confidenza $c_k$.
+\end{itemize}
+
+La stima della componente di rotazione nel Block Matching puro restituisce $\Delta\theta = 0$ per default: il modello è essenzialmente traslazionale.
+
+\subsection{Parametri Configurabili}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Parametro & Default & Descrizione \\
+\midrule
+\texttt{block\_size} & 32 & Dimensione blocco (px) \\
+\texttt{search\_range} & 12 & Raggio finestra di ricerca (px) \\
+\texttt{metric} & \texttt{sad} & Metrica di similarità \\
+\texttt{outlier\_threshold} & 2.0 & Soglia z-score per rimozione outlier \\
+\texttt{aggregation\_method} & \texttt{median} & Metodo di aggregazione \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Optical Flow – Shi-Tomasi + Lucas-Kanade}
+
+Il metodo Optical Flow, attivato impostando \texttt{estimation\_method: optical\_flow} e \texttt{feature\_type: shi\_tomasi}, sfrutta la pipeline \texttt{goodFeaturesToTrack} + \texttt{calcOpticalFlowPyrLK} di OpenCV.
+
+\subsection{Rilevamento dei Corner (Shi-Tomasi)}
+
+La funzione \texttt{cv2.goodFeaturesToTrack} individua i punti salienti massimizzando il minimo autovalore della matrice di struttura locale~\cite{shi1994good}. I parametri chiave sono:
+
+\begin{itemize}
+    \item \texttt{maxCorners} (default: 1500): numero massimo di feature estratte per frame.
+    \item \texttt{qualityLevel} (default: 0.002): soglia sul rapporto tra il minimo autovalore e il massimo globale.
+    \item \texttt{minDistance} (default: 10\,px): distanza minima tra corner adiacenti.
+\end{itemize}
+
+\subsection{Tracciamento Lucas-Kanade Piramidale}
+
+Lo spostamento di ciascun corner è stimato risolvendo il sistema lineare dell'ipotesi di costanza dell'intensità con \texttt{cv2.calcOpticalFlowPyrLK}~\cite{lucas1981iterative}:
+
+\begin{itemize}
+    \item \texttt{winSize} (default: $21\times21$): finestra di integrazione locale.
+    \item \texttt{maxLevel} (default: 3): numero di livelli della piramide gaussiana, che consente di gestire spostamenti maggiori.
+\end{itemize}
+
+I punti il cui flag di stato è 0 (tracking non convergente) vengono scartati.
+
+\subsection{Stima della Trasformazione Globale via RANSAC}
+
+I punti tracciati con successo $\{(p_k, p'_k)\}$ vengono usati per stimare la trasformazione globale tramite RANSAC~\cite{fischler1981ransac}. Sono supportati tre modelli:
+
+\begin{enumerate}
+    \item \textbf{Partial} (\texttt{estimateAffinePartial2D}, 4 parametri): similitudine rigida con traslazione $(t_x, t_y)$, rotazione $\theta$ e scala uniforme $s$.
+    \[
+        M = s\begin{bmatrix}\cos\theta & -\sin\theta \\ \sin\theta & \cos\theta\end{bmatrix},\quad \mathbf{t}=\begin{bmatrix}t_x \\ t_y\end{bmatrix}
+    \]
+    \item \textbf{Affine} (\texttt{estimateAffine2D}, 6 parametri): trasformazione affine completa con 4 gradi di libertà aggiuntivi (scale differenziali e shear).
+    \item \textbf{Homography} (\texttt{findHomography}, 8 parametri): trasformazione proiettiva completa $H \in \mathbb{R}^{3\times3}$.
+\end{enumerate}
+
+La soglia RANSAC (\texttt{ransac\_reproj\_threshold}, default: 6.0\,px) controlla toleranza agli inlier. L'angolo di rotazione viene estratto dalla matrice stimata tramite $\theta = \mathrm{atan2}(M_{10}, M_{00})$.
+
+\section{ORB Feature Matching}
+
+Il metodo ORB~\cite{rublee2011orb}, attivato con \texttt{feature\_type: orb}, sostituisce la pipeline LK con un detector/descriptor ORB (\emph{Oriented FAST and Rotated BRIEF}) seguito da un Brute-Force Matcher con distanza di Hamming.
+
+\subsection{Rilevamento e Descrizione}
+
+\texttt{cv2.ORB\_create} parametri configurabili:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Parametro & Default & Descrizione \\
+\midrule
+\texttt{orb\_n\_features} & 1000 & Numero massimo di keypoint estratti \\
+\texttt{orb\_scale\_factor} & 1.2 & Fattore di scala piramidale \\
+\texttt{orb\_n\_levels} & 10 & Livelli della piramide \\
+\texttt{orb\_edge\_threshold} & 31 & Bordo escluso dalla rilevazione \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Matching e Lowe's Ratio Test}
+
+Il matching è eseguito con \texttt{cv2.BFMatcher(cv2.NORM\_HAMMING, crossCheck=False)} applicando il kNN con $k=2$. Le corrispondenze ambigue vengono scartate tramite il \emph{Lowe's ratio test}~\cite{lowe2004distinctive}:
+
+\[
+    m.distance < r \cdot n.distance, \qquad r = \texttt{orb\_ratio\_threshold} = 0.75
+\]
+
+dove $m$ e $n$ sono rispettivamente il primo e il secondo nearest neighbor. Solo le corrispondenze che superano questo test vengono utilizzate per la stima RANSAC.
+
+\subsection{Stima della Trasformazione Globale}
+
+Identica all'approccio Optical Flow: i punti matchati $\{(p_k, p'_k)\}$ alimentano gli stessi tre stimatori RANSAC (Partial, Affine, Homography).
+
+\section{Confronto Strutturale tra i Metodi}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Caratteristica & Block Matching & Optical Flow & ORB \\
+\midrule
+Tipo di feature & Blocchi pixel & Corner Shi-Tomasi & Keypoint FAST \\
+Descrittore & SAD/MAD & Flusso ottico LK & BRIEF binario \\
+Modello trasformazione & Traslazione & Partial/Affine/Homog. & Partial/Affine/Homog. \\
+Stima robusta & Z-score & RANSAC & RANSAC \\
+Stima rotazione & No & Sì & Sì \\
+Complessità & Bassa & Media & Media-Alta \\
+Robustezza illuminazione & Bassa & Media & Alta \\
+\bottomrule
+\end{tabular}
+\caption{Confronto strutturale tra i metodi implementati}
+\end{table}
