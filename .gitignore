@@ -45,7 +45,6 @@ htmlcov/
 
 # Cartelle da ignorare
 notebooks/
-relazione/
 tests/
 
 # File da ignorare
